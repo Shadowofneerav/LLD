@@ -9,12 +9,20 @@ public class Game {
     private List<Move> moves;
     private GameState gameState;
 
-    public Game(Player winner, List<Player> player, Board board, List<Move> moves, GameState gameState) {
-        this.winner = winner;
-        this.player = player;
-        this.board = board;
-        this.moves = moves;
-        this.gameState = gameState;
+//    public Game(Player winner, List<Player> player, Board board, List<Move> moves, GameState gameState) {
+//        this.winner = winner;
+//        this.player = player;
+//        this.board = board;
+//        this.moves = moves;
+//        this.gameState = gameState;
+//    }
+    private Game(int dimenstion, List<Player> player)
+    {
+
+    }
+    public static GameBuilder getBuilder()
+    {
+        return new GameBuilder();
     }
 
     public Player getWinner() {
@@ -55,5 +63,30 @@ public class Game {
 
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
+    }
+    public static class GameBuilder{
+        private int dimension;
+        private List<Player> players;
+        public Game build()
+        {
+
+            return new Game(dimension,players);
+        }
+
+        public List<Player> getPlayers() {
+            return players;
+        }
+
+        public void setPlayers(List<Player> players) {
+            this.players = players;
+        }
+
+        public int getDimension() {
+            return dimension;
+        }
+
+        public void setDimension(int dimension) {
+            this.dimension = dimension;
+        }
     }
 }
