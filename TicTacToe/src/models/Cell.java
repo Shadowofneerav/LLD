@@ -13,6 +13,14 @@ public class Cell {
         this.cellState = CellState.EMPTY;
     }
 
+    public boolean isEmpty()
+    {
+        if(cellState.equals(CellState.EMPTY))
+        {
+            return true;
+        }
+        return false;
+    }
     public int getRow() {
         return row;
     }

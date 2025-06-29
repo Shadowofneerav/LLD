@@ -24,6 +24,8 @@ public class Board {
         return size;
     }
 
+
+
     public void setSize(int size) {
         this.size = size;
     }
@@ -34,5 +36,27 @@ public class Board {
 
     public void setCell(List<List<Cell>> cell) {
         this.cell = cell;
+    }
+    public boolean isEmpty(int row,int col)
+    {
+        return cell.get(row).get(col).getCellState() == CellState.EMPTY;
+    }
+    public void showBoard()
+    {
+        for(int i=0;i<cell.size();i++)
+        {
+            for(int j = 0; j<cell.getFirst().size(); j++)
+            {
+                if(cell.get(i).get(j).isEmpty())
+                {
+                    System.out.print("|   |");
+                }
+                else
+                {
+                    System.out.print("| "+cell.get(i).get(j).getPlayer().getSymbol().getSymbol()+" |");
+                }
+            }
+            System.out.println();
+        }
     }
 }

@@ -3,6 +3,10 @@ package models;
 import exceptions.DuplicateSymbolsException;
 import exceptions.MultipleBotsException;
 import exceptions.NotEnoughPlayersException;
+import strategy.GameWinningStrategy.ColumnWinningStrategy;
+import strategy.GameWinningStrategy.DiagonalWinningStrategy;
+import strategy.GameWinningStrategy.GameWinningStrategy;
+import strategy.GameWinningStrategy.RowWinningStrategy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +18,16 @@ public class Game {
     private Player winner;
     private List<Move> moves;
     private GameState gameState;
+
+    public List<GameWinningStrategy> getGameWinningStrategy() {
+        return gameWinningStrategy;
+    }
+
+    public void setGameWinningStrategy(List<GameWinningStrategy> gameWinningStrategy) {
+        this.gameWinningStrategy = gameWinningStrategy;
+    }
+
+    private List<GameWinningStrategy> gameWinningStrategy;
 
     public int getNextPlayerMoveIndex() {
         return nextPlayerMoveIndex;
@@ -32,13 +46,14 @@ public class Game {
 //        this.moves = moves;
 //        this.gameState = gameState;
 //    }
-    private Game(int dimension, List<Player> player)
+    private Game(int dimension, List<Player> player,List<GameWinningStrategy> gameWinningStrategy)
     {
         this.board = new Board(dimension);
         this.player = player;
         this.moves = new ArrayList<>();
         this.gameState = GameState.IN_PROGRESS;
         this.nextPlayerMoveIndex = 0;
+        this.gameWinningStrategy = gameWinningStrategy;
 
     }
     public static GameBuilder getBuilder()
@@ -85,12 +100,57 @@ public class Game {
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
     }
+    public void displayBoard()
+    {
+        board.showBoard();
+    }
+    public boolean validateMove(Move move)
+    {
+        int row = move.getCell().getRow();
+        int col = move.getCell().getColumn();
+        return row>=0 && row<board.getSize() && col>=0 && col<board.getSize() && move.getCell().isEmpty();
+    }
+    public void makemove()
+    {
+        Player currentplayer = player.get(nextPlayerMoveIndex);
+        System.out.println("It's the current play move "+currentplayer.getName());
+        Move move = currentplayer.makemove(board);
+        validateMove(move);
+        int row = move.getCell().getRow();
+        int col = move.getCell().getColumn();
+
+        Cell cell =board.getCell().get(row).get(col);
+        cell.setRow(row);
+        cell.setColumn(col);
+        cell.setCellState(CellState.FILLED);
+        cell.setPlayer(currentplayer);
+
+        Move finalMove = new Move(currentplayer,cell);
+
+        nextPlayerMoveIndex+=1;
+        nextPlayerMoveIndex%=player.size();
+
+        for(GameWinningStrategy g:gameWinningStrategy)
+        {
+            if(g.checkwinner(finalMove,board))
+            {
+                setWinner(currentplayer);
+                gameState = GameState.ENDED;
+            }
+
+        }
+        if(moves.size()== board.getSize()* board.getSize())
+        {
+            gameState=GameState.DRAW;
+        }
+
+    }
     public static class GameBuilder{
         private int dimension;
         private List<Player> players;
         public Game build() throws NotEnoughPlayersException {
             validateGame(dimension,players);
-            return new Game(dimension,players);
+            return new Game(dimension,players, List.of(new RowWinningStrategy(),new ColumnWinningStrategy(),new DiagonalWinningStrategy()));
         }
         private void validateGame(int dimension,List<Player> players) throws NotEnoughPlayersException {
             validate_count();
